@@ -168,5 +168,39 @@ class Classifier {
     inputImage = imageProcessor.process(inputImage);
     return inputImage;
   }
+
+  // Map<String, double>? predictManually(imageLib.Image image) {
+  //
+  //   if (_interpreter == null) {
+  //     print("Interpreter not initialized");
+  //     return null;
+  //   }
+  //
+  //   final resizedImage = imageLib.copyResize(image, width: INPUT_SIZE, height: INPUT_SIZE);
+  //
+  //   var _inputImage = List<List<double>>.generate(INPUT_SIZE, (i) =>
+  //       List.generate(INPUT_SIZE, (j) => 0.0)).reshape<double>([1, INPUT_SIZE, INPUT_SIZE, 1]);
+  //
+  //   for (int x = 0; x < INPUT_SIZE; x++) {
+  //     for (int y = 0; y < INPUT_SIZE; y++) {
+  //       double val = resizedImage[(x * INPUT_SIZE) + y].toDouble();
+  //       val = val > 50 ? 1.0 : 0;
+  //       _inputImage[0][x][y][0] = val;
+  //     }
+  //   }
+  //
+  //   TensorBuffer outputBuffer = TensorBuffer.createFixedSize(
+  //       interpreter!.getOutputTensor(0).shape,
+  //       interpreter!.getOutputTensor(0).type);
+  //
+  //   interpreter!.run(_inputImage, outputBuffer.getBuffer());
+  //
+  //   final probabilityProcessor = TensorProcessorBuilder()
+  //       .add(NormalizeOp(0, 1)).build();
+  //
+  //   return TensorLabel.fromList(
+  //       labels!, probabilityProcessor.process(outputBuffer))
+  //       .getMapWithFloatValue();
+  // }
 }
 
