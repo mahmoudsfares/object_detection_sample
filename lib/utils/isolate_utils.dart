@@ -6,21 +6,18 @@ import 'package:object_detection_sample/tflite/classifier.dart';
 import 'package:object_detection_sample/utils/image_utils.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 
-/// Manages separate Isolate instance for inference
 class IsolateUtils {
-  static const String DEBUG_NAME = "InferenceIsolate";
 
-  Isolate? _isolate;
   final ReceivePort _receivePort = ReceivePort();
   SendPort? _sendPort;
 
   SendPort get sendPort => _sendPort!;
 
   Future<void> start() async {
-    _isolate = await Isolate.spawn<SendPort>(
+    await Isolate.spawn<SendPort>(
       entryPoint,
       _receivePort.sendPort,
-      debugName: DEBUG_NAME,
+      debugName: "InferenceIsolate",
     );
 
     _sendPort = await _receivePort.first;

@@ -1,18 +1,17 @@
 import 'dart:math';
-
 import 'package:flutter/cupertino.dart';
 import 'package:object_detection_sample/camera/camera_view_singleton.dart';
 
 /// Represents the recognition output from the model
 class Recognition {
   /// Index of the result
-  int _id;
+  final int _id;
 
   /// Label of the result
-  String _label;
+  final String _label;
 
   /// Confidence [0.0, 1.0]
-  double _score;
+  final double _score;
 
   /// Location of bounding box rect
   ///
@@ -28,16 +27,12 @@ class Recognition {
 
   double get score => _score;
 
-  // Rect get location => location;
-
   /// Returns bounding box rectangle corresponding to the
   /// displayed image on screen
   ///
   /// This is the actual location where rectangle is rendered on
   /// the screen
   Rect get renderLocation {
-    // ratioX = screenWidth / imageInputWidth
-    // ratioY = ratioX if image fits screenWidth with aspectRatio = constant
 
     double ratioX = CameraViewSingleton.ratio!;
     double ratioY = ratioX;
@@ -52,10 +47,5 @@ class Recognition {
     Rect transformedRect =
     Rect.fromLTWH(transLeft, transTop, transWidth, transHeight);
     return transformedRect;
-  }
-
-  @override
-  String toString() {
-    return 'Recognition(id: $id, label: $label, score: $score, location: $location)';
   }
 }

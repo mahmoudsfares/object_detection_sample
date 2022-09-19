@@ -4,37 +4,28 @@ import 'package:flutter/material.dart';
 import 'package:object_detection_sample/main.dart';
 import 'package:object_detection_sample/tflite/classifier.dart';
 import 'package:object_detection_sample/tflite/recognition.dart';
-import 'package:object_detection_sample/tflite/stats.dart';
 import 'package:object_detection_sample/utils/isolate_utils.dart';
 import 'camera_view_singleton.dart';
 
-/// [CameraView] sends each frame for inference
 class CameraView extends StatefulWidget {
+
   /// Callback to pass results after inference to [HomeView]
   final Function(List<Recognition> recognitions) resultsCallback;
 
-  /// Callback to inference stats to [HomeView]
-  final Function(Stats stats) statsCallback;
+  const CameraView(this.resultsCallback);
 
-  /// Constructor
-  const CameraView(this.resultsCallback, this.statsCallback);
   @override
   _CameraViewState createState() => _CameraViewState();
 }
 
 class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
 
-  /// Controller
   CameraController? cameraController;
+  late Classifier classifier;
+  late IsolateUtils isolateUtils;
 
   /// true when inference is ongoing
   bool predicting = false;
-
-  /// Instance of [Classifier]
-  late Classifier classifier;
-
-  /// Instance of [IsolateUtils]
-  late IsolateUtils isolateUtils;
 
   @override
   void initState() {
@@ -93,9 +84,7 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
       return Container();
     }
 
-    return AspectRatio(
-        aspectRatio: cameraController!.value.aspectRatio,
-        child: CameraPreview(cameraController!));
+    return CameraPreview(cameraController!);
   }
 
   /// Callback to receive each frame [CameraImage] perform inference on it
@@ -110,8 +99,6 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
         predicting = true;
       });
 
-      var uiThreadTimeStart = DateTime.now().millisecondsSinceEpoch;
-
       // Data to be passed to inference isolate
       var isolateData = IsolateData(
           cameraImage, classifier.interpreter!.address, classifier.labels!);
@@ -123,15 +110,8 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
       /// perform inference in separate isolate
       Map<String, dynamic> inferenceResults = await inference(isolateData);
 
-      var uiThreadInferenceElapsedTime =
-          DateTime.now().millisecondsSinceEpoch - uiThreadTimeStart;
-
       // pass results to HomeView
       widget.resultsCallback(inferenceResults["recognitions"]);
-
-      // pass stats to HomeView
-      widget.statsCallback((inferenceResults["stats"] as Stats)
-        ..totalElapsedTime = uiThreadInferenceElapsedTime);
 
       // set predicting to false to allow new frames
       setState(() {
