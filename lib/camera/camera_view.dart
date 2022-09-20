@@ -8,7 +8,6 @@ import 'package:object_detection_sample/utils/isolate_utils.dart';
 import 'camera_view_singleton.dart';
 
 class CameraView extends StatefulWidget {
-
   /// Callback to pass results after inference to [HomeView]
   final Function(List<Recognition> recognitions) resultsCallback;
 
@@ -19,7 +18,6 @@ class CameraView extends StatefulWidget {
 }
 
 class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
-
   CameraController? cameraController;
   late Classifier classifier;
   late IsolateUtils isolateUtils;
@@ -34,19 +32,14 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
   }
 
   void initStateAsync() async {
-    WidgetsBinding.instance.addObserver(this);
-
-    // Spawn a new isolate
     isolateUtils = IsolateUtils();
     await isolateUtils.start();
 
-    // Camera initialization
     initializeCamera();
 
     // Create an instance of classifier to load model and labels
     classifier = Classifier(interpreter: null, labels: null);
 
-    // Initially predicting = false
     predicting = false;
   }
 
@@ -54,16 +47,18 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
   void initializeCamera() async {
 
     // cameras[0] for rear-camera
-    cameraController =
-        CameraController(cameras[0], ResolutionPreset.low, enableAudio: false);
+    cameraController = CameraController(
+      cameras[0],
+      ResolutionPreset.medium,
+      enableAudio: false,
+    );
 
     cameraController!.initialize().then((_) async {
       // Stream of image passed to [onLatestImageAvailable] callback
       await cameraController!.startImageStream(onLatestImageAvailable);
 
-      /// previewSize is size of each image frame captured by controller
-      ///
-      /// 352x288 on iOS, 240p (320x240) on Android with ResolutionPreset.low
+      // previewSize is size of each image frame captured by controller
+      // 352x288 on iOS, 240p (320x240) on Android
       Size previewSize = cameraController!.value.previewSize!;
 
       /// previewSize is size of raw input image to the model
@@ -104,10 +99,10 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
           cameraImage, classifier.interpreter!.address, classifier.labels!);
 
       // We could have simply used the compute method as well however
-      // it would be as in-efficient as we need to continuously passing data
+      // it would be inefficient as we need to be continuously passing data
       // to another isolate.
 
-      /// perform inference in separate isolate
+      // perform inference in separate isolate
       Map<String, dynamic> inferenceResults = await inference(isolateData);
 
       // pass results to HomeView

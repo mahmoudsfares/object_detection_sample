@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'dart:ui';
-import 'package:image/image.dart' as imageLib;
+import 'package:image/image.dart' as image_lib;
 import 'package:object_detection_sample/tflite/recognition.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:tflite_flutter_helper/tflite_flutter_helper.dart';
@@ -76,7 +76,7 @@ class Classifier {
   }
 
   /// Runs object detection on the input image
-  Map<String, dynamic>? predict(imageLib.Image image) {
+  Map<String, dynamic>? predict(image_lib.Image image) {
 
     if (_interpreter == null) {
       print("Interpreter not initialized");
@@ -113,9 +113,6 @@ class Classifier {
     // Maximum number of results to show
     int resultsCount = min(NUM_RESULTS, numLocations.getIntValue(0));
 
-    // Using labelOffset = 1 as ??? at index 0
-    int labelOffset = 1;
-
     // Using bounding box utils for easy conversion of tensorbuffer to List<Rect>
     List<Rect> locations = BoundingBoxUtils.convert(
       tensor: outputLocations,
@@ -133,8 +130,8 @@ class Classifier {
       // Prediction score
       var score = outputScores.getDoubleValue(i);
 
-      // Label string
-      var labelIndex = outputClasses.getIntValue(i) + labelOffset;
+      // 1 was added because an object can't have an index of 0
+      var labelIndex = outputClasses.getIntValue(i) + 1;
       var label = _labels!.elementAt(labelIndex);
 
       if (score > THRESHOLD) {
@@ -169,6 +166,7 @@ class Classifier {
     return inputImage;
   }
 
+  /// another way to predict, didn't try it yet (20/9/2022).
   // Map<String, double>? predictManually(imageLib.Image image) {
   //
   //   if (_interpreter == null) {
